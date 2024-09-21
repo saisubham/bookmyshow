@@ -22,7 +22,7 @@ public class PaymentService {
 
     public Payment makePayment(String seatId, String userId) {
         Seat seat = seatService.findById(seatId);
-        if (seat.isLocked() || seat.isBooked()) {
+        if (seat.isBooked() || (seat.isLocked() && !seat.getLockedByUserId().equals(userId))) {
             return null;
         }
         Payment payment = new Payment(seatId, userId);

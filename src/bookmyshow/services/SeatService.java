@@ -26,7 +26,7 @@ public class SeatService {
     public List<Seat> findAllAvailableByShowId(String showId) {
         return seatMap.values().stream()
                 .filter(seat -> seat.getShowId().equals(showId)
-                        && !seat.isLocked())
+                        && !(seat.isBooked() || seat.isLocked()))
                 .toList();
     }
 

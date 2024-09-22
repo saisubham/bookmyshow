@@ -60,7 +60,9 @@ public class BookMyShowService {
     }
 
     public void bookTicket(String seatId, String userId, long paymentDelayMillis) {
-        bookingService.book(seatId, userId);
+        if (!bookingService.book(seatId, userId)) {
+            return;
+        }
         try {
             Thread.sleep(paymentDelayMillis);
         } catch (InterruptedException e) {
@@ -72,7 +74,7 @@ public class BookMyShowService {
             return;
         }
         Booking booking = bookingService.book(payment.getId());
-        System.out.println(booking);
+//        System.out.println(booking);
     }
 
     public void run() throws InterruptedException {

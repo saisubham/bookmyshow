@@ -18,11 +18,9 @@ public class BookingService {
         bookingMap = new HashMap<>();
     }
 
-    public void book(String seatId, String userId) {
+    public boolean book(String seatId, String userId) {
         Seat seat = seatService.findById(seatId);
-        if (!seat.isLocked()) {
-            seat.lock(userId);
-        }
+        return seat.lock(userId);
     }
 
     // callback
@@ -34,11 +32,9 @@ public class BookingService {
         String seatId = payment.getSeatId();
         String userId = payment.getUserId();
         Seat seat = seatService.findById(seatId);
-
-        if (seat.isBooked() || (seat.isLocked() && !seat.getLockedByUserId().equals(userId))) {
+        if (!seat.book(userId)) {
             return null;
         }
-        seat.book(userId);
         Booking booking = new Booking(userId, seatId);
         bookingMap.put(booking.getId(), booking);
         return booking;

@@ -10,7 +10,7 @@ public class Seat {
     private final String showId;
     private String lockedByUserId;
     private String bookedByUserId;
-    private SeatStatus status;
+    private volatile SeatStatus status;
     private Instant lastLockedTime;
     private final int lockDurationSeconds;
 
@@ -41,10 +41,14 @@ public class Seat {
         return lockedByUserId;
     }
 
-    public synchronized void lock(String userId) {
+    public synchronized boolean lock(String userId) {
+        if (status == SeatStatus.BOOKED || (status == SeatStatus.LOCKED && !userId.equals(lockedByUserId))) {
+            return false;
+        }
         status = SeatStatus.LOCKED;
         lastLockedTime = Instant.now();
         lockedByUserId = userId;
+        return true;
     }
 
     public synchronized boolean isLocked() {
@@ -56,13 +60,16 @@ public class Seat {
         return false;
     }
 
-    public synchronized void book(String userId) {
+    public synchronized boolean book(String userId) {
+        if (status == SeatStatus.BOOKED || (status == SeatStatus.LOCKED && !userId.equals(lockedByUserId))) {
+            return false;
+        }
         bookedByUserId = userId;
-        lockedByUserId = null;
         status = SeatStatus.BOOKED;
+        return true;
     }
 
-    public synchronized boolean isBooked() {
+    public boolean isBooked() {
         return status == SeatStatus.BOOKED;
     }
 
